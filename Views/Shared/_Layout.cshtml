@@ -1,113 +1,120 @@
 ﻿<!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>@ViewBag.Title - LibraryNET</title>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - LibraryNET</title>
 
-        <!---Librerias para íconos, Font Awesome 4, 5 y Google-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <script src='https://kit.fontawesome.com/a33530bb41.js' crossorigin='anonymous'></script>
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!---Librerias para íconos, Font Awesome 4, 5 y Google-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src='https://kit.fontawesome.com/a33530bb41.js' crossorigin='anonymous'></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-        <!---Librerias de Scripts-->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!---Librerias de Scripts-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-        <!---Libreria Sweet Alert-->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!---Libreria Sweet Alert-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        @Styles.Render("~/Content/css")
-        @Scripts.Render("~/bundles/modernizr")
+    <!-- Librerias de calendario FlatPicker-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 
-        <style>
-            div.content {
-                margin-left: 200px;
-                padding: 1px 16px;
-                width: 1250px;
-                margin-top: 56px;
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <style>
+        div.content {
+            margin-left: 200px;
+            padding: 1px 16px;
+            width: 1250px;
+            margin-top: 56px;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Lato", sans-serif;
+        }
+
+        /* Estilos para el sidebar */
+        .sidenav {
+            margin: 0;
+            padding: 0;
+            width: 200px;
+            background-color: #f1f1f1;
+            position: fixed;
+            height: 100%;
+            overflow: auto;
+        }
+
+            .sidenav a {
+                display: block;
+                color: black;
+                padding: 16px;
+                text-decoration: none;
             }
 
-            body {
-                margin: 0;
-                font-family: "Lato", sans-serif;
-            }
-            /* Estilos para el sidebar */
-            .sidenav {
-                margin: 0;
-                padding: 0;
-                width: 200px;
-                background-color: #f1f1f1;
-                position: fixed;
-                height: 100%;
-                overflow: auto;
-            }
-
-                .sidenav a {
-                    display: block;
-                    color: black;
-                    padding: 16px;
-                    text-decoration: none;
+                .sidenav a.active {
+                    background-color: #04AA6D;
+                    color: white;
                 }
 
-                    .sidenav a.active {
-                        background-color: #04AA6D;
-                        color: white;
-                    }
-
-                    .sidenav a:hover:not(.active) {
-                        background-color: #555;
-                        color: white;
-                    }
-
-            /* Estilos adicionales */
-
-            .navbar {
-                --bs-navbar-padding-x: 1rem;
-            }
-
-            .navbar-brand {
-                margin-left: 50px; /* Ajustar el espacio entre el logotipo y el icono del menú */
-            }
-
-            .submenu {
-                display: none;
-            }
-
-                .submenu.show {
-                    display: block;
-                    padding-left: 40px;
-                    font-size: smaller;
+                .sidenav a:hover:not(.active) {
+                    background-color: #555;
+                    color: white;
                 }
 
-                .submenu.parent {
-                    padding-bottom: 10px; /* Agrega un espacio vertical debajo del enlace principal */
-                }
+        /* Estilos adicionales */
 
-                .submenu a {
-                    font-size: 15px;
-                }
+        .navbar {
+            --bs-navbar-padding-x: 1rem;
+        }
 
-            /* Estilos para los valores de sesión */
-            .session-info {
-                position: absolute;
-                bottom: 10%;
-                left: 0;
-                width: 100%;
-                background-color: #f1f1f1;
-                text-align: center;
+        .navbar-brand {
+            margin-left: 50px;
+        }
+
+        .submenu {
+            display: none;
+        }
+
+            .submenu.show {
+                display: block;
+                padding-left: 40px;
+                font-size: smaller;
             }
 
-            /* Estilo contador carrito*/
-            .contador-carrito{
-                position:absolute;
-                right:7px;
-                top:30px;
-                background-color:aqua;
+            .submenu.parent {
+                padding-bottom: 10px;
             }
-        </style>
-    </head>
+
+            .submenu a {
+                font-size: 15px;
+            }
+
+        /* Estilos para los valores de sesión */
+        .session-info {
+            position: absolute;
+            bottom: 10%;
+            left: 0;
+            width: 100%;
+            background-color: #f1f1f1;
+            text-align: center;
+        }
+
+        /* Estilo contador carrito*/
+        .contador-carrito {
+            position: absolute;
+            right: 7px;
+            top: 30px;
+            background-color: aqua;
+        }
+    </style>
+</head>
     <body>
         <!-- Navbar superior -->
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark fixed-top">
@@ -244,11 +251,27 @@
                     <a href='@Url.Action("EditList", "Edit")'>Editoriales</a>
                 </div>
             }
+            else
+            {
+                <a href='@Url.Action("BuyList","BuySell")'>
+                    <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g id="Stockholm-icons-/-Shopping-/-Bag2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <rect id="bound" x="0" y="0" width="24" height="24"></rect>
+                            <path d="M5.94290508,4 L18.0570949,4 C18.5865712,4 19.0242774,4.41271535 19.0553693,4.94127798 L19.8754445,18.882556 C19.940307,19.9852194 19.0990032,20.9316862 17.9963398,20.9965487 C17.957234,20.9988491 17.9180691,21 17.8788957,21 L6.12110428,21 C5.01653478,21 4.12110428,20.1045695 4.12110428,19 C4.12110428,18.9608266 4.12225519,18.9216617 4.12455553,18.882556 L4.94463071,4.94127798 C4.97572263,4.41271535 5.41342877,4 5.94290508,4 Z" id="Combined-Shape" fill="#000000" opacity="0.3"></path>
+                            <path d="M7,7 L9,7 C9,8.65685425 10.3431458,10 12,10 C13.6568542,10 15,8.65685425 15,7 L17,7 C17,9.76142375 14.7614237,12 12,12 C9.23857625,12 7,9.76142375 7,7 Z" id="Oval-28" fill="#000000"></path>
+                        </g>
+                    </svg>
+                    Mis Compras
+                </a>
+                <a href='@Url.Action("BorrowList","Borrow")'>
+                    Mis Prestamos
+                </a>
+            }
+
             <div class="session-info">
                 @Session["UserName"] @Session["UserLName"]
                 <div id="sessionRemainingTime"> </div>
             </div>
-
 
         </div>
 
@@ -263,7 +286,6 @@
                     </footer>
                 </div>
             </div>
-
         </div>
 
         @Scripts.Render("~/bundles/jquery")
@@ -332,7 +354,11 @@
                             location.href = '/Cart/CartDetail';
 
                         } else {
-                            alert("No hay elementos en el Carrito")
+                            Swal.fire({
+                                title: "¡Ups!",
+                                text: "No hay elementos en el Carrito",
+                                icon: "info"
+                            });
                         }
                     },
                     error: function () {
@@ -346,9 +372,20 @@
                     url: '@Url.Action("Logout", "Account")',
                     type: 'GET',
                     success: function () {
-                        alert("Sesion terminada")
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true
+                        });
 
-                        location.href = '/Account/Login';
+                        Toast.fire({
+                            icon: "success",
+                            title: "Ha finalizado sesión"
+                        }).then(function () {
+                            location.href = '/Account/Login';
+                        });
                     },
                     error: function() {
                     }

@@ -1,30 +1,28 @@
 ﻿using DTO;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
-using System.Web.UI.WebControls.WebParts;
-using System.Security.Cryptography;
 
 namespace LibraryNET.Implementation.AdminManagers
 {
-    public class BuySellManager
+    public class BorrowManager
     {
         //Agregar conexion a BD
         DbConnectionProvider dbc = new DbConnectionProvider();
 
         #region Propierties
 
-        protected string TableName = "Buys";
-        protected string Fields = "Id, IdUser, ProductsQ, PhoneUser, DirUser, IdTransaction, BuySubtotal, BuyIVA, BuyTotalAmount, BuyDate";
+        protected string TableName = "Borrows";
+        protected string Fields = "Id, UserId, IdTransaction, ProductsQ, UserPhone, DirUser, BorrowRegisterDate";
 
         #endregion
 
-        #region Public Buy Methods
+        #region PublicMethods
 
-        public int InsertBuy(Buy buy, DataTable buyDetail)
+        public int InsertBorrowRequest(Borrows borrow, DataTable borrowDetail)
         {
             int result = 0;
 
@@ -37,20 +35,17 @@ namespace LibraryNET.Implementation.AdminManagers
                     // Definir la query para insertar en Compra
                     string query = string.Format("INSERT INTO {0} ({1}) {2}",
                                     TableName,
-                                    "IdUser, ProductsQ, PhoneUser, DirUser, IdTransaction, BuySubtotal, BuyIVA, BuyTotalAmount, BuyDate",
-                                    "VALUES(@IdUser, @ProductsQ, @PhoneUser, @DirUser, @IdTransaction, @BuySubtotal, @BuyIVA, @BuyTotalAmount, @BuyDate)");
+                                    "UserId, IdTransaction, ProductsQ, UserPhone, DirUser, BorrowRegisterDate",
+                                    "VALUES(@UserId, @IdTransaction, @ProductsQ, @UserPhone, @DirUser, @BorrowRegisterDate)");
 
                     // Definir los paramatros de enviar
                     List<SqlParameter> colParameters = new List<SqlParameter>();
-                    colParameters.Add(new SqlParameter("IdUser", buy.IdUser));
-                    colParameters.Add(new SqlParameter("ProductsQ", buy.ProductsQ));
-                    colParameters.Add(new SqlParameter("PhoneUser", buy.PhoneUser));
-                    colParameters.Add(new SqlParameter("DirUser", buy.DirUser));
-                    colParameters.Add(new SqlParameter("IdTransaction", buy.IdTransaction));
-                    colParameters.Add(new SqlParameter("BuySubtotal", buy.TotalBruto));
-                    colParameters.Add(new SqlParameter("BuyIVA", buy.IVA));
-                    colParameters.Add(new SqlParameter("BuyTotalAmount", buy.TotalAmount));
-                    colParameters.Add(new SqlParameter("BuyDate", DateTime.Now));
+                    colParameters.Add(new SqlParameter("UserId", borrow.IdUser));
+                    colParameters.Add(new SqlParameter("IdTransaction", borrow.ProductsQ));
+                    colParameters.Add(new SqlParameter("ProductsQ", borrow.PhoneUser));
+                    colParameters.Add(new SqlParameter("UserPhone", borrow.DirUser));
+                    colParameters.Add(new SqlParameter("DirUser", borrow.IdTransaction));;
+                    colParameters.Add(new SqlParameter("BorrowRegisterDate", DateTime.Now));
 
 
                     //Ejecutar el comando y obtener el resultado
@@ -62,26 +57,26 @@ namespace LibraryNET.Implementation.AdminManagers
                         try
                         {
                             // Crear lista de BuyDetail
-                            List<BuyDetail> buyDetailList = new List<BuyDetail>();
+                            List<BorrowDetail> borrowDetailList = new List<BorrowDetail>();
 
                             // Rellenar lista con registros
-                            if ((buyDetail != null) && (buyDetail.Rows.Count > 0))
+                            if ((borrowDetail != null) && (borrowDetail.Rows.Count > 0))
                             {
                                 try
                                 {
-                                    for (int i = 0; i < buyDetail.Rows.Count; i++)
+                                    for (int i = 0; i < borrowDetail.Rows.Count; i++)
                                     {
                                         // Transformar las filas del DT en fila de BuyDetail
-                                        BuyDetail buyDetailObj = ConvertDtRowToDTO(buyDetail.Rows[i]);
-                                        buyDetailObj.BuyId = id;
-                                        buyDetailList.Add(buyDetailObj);
+                                        BorrowDetail borrowDetailObj = ConvertDtRowToDTO(borrowDetail.Rows[i]);
+                                        borrowDetailObj.BorrowId = id;
+                                        borrowDetailList.Add(borrowDetailObj);
 
                                         // Valida la cantidad comprada de cada libro
-                                        if (buyDetailObj.BuyBookQ > 1)
+                                        if (borrowDetailObj.BorrowBookQ > 1)
                                         {
                                             try
                                             {
-                                                result = updateBookStock(buyDetailObj.BuyBookQ, buyDetailObj.BuyProductId);
+                                                result = updateBookStock(borrowDetailObj.BorrowBookQ, borrowDetailObj.BorrowProductId);
                                             }
                                             catch (Exception)
                                             {
@@ -90,7 +85,7 @@ namespace LibraryNET.Implementation.AdminManagers
                                             }
                                         }
                                         // Genera un registro en el Detalle de Compra
-                                        result = InsertBuyDetail(buyDetailList[i]);
+                                        result = InsertBorrowDetail(borrowDetailList[i]);
                                     }
 
                                     if (result == 1)
@@ -98,7 +93,7 @@ namespace LibraryNET.Implementation.AdminManagers
                                         try
                                         {
                                             // Elimina el carrito generado al usuario
-                                            result = delCart(buy.IdUser);
+                                            result = delBorrowCart(borrow.IdUser);
                                         }
                                         catch (Exception)
                                         {
@@ -142,7 +137,7 @@ namespace LibraryNET.Implementation.AdminManagers
             return result;
         }
 
-        public IEnumerable<Buy> GetBuys(int idUser)
+        public IEnumerable<Borrows> GetBorrows(int idUser)
         {
             string query = string.Format(@"SELECT  
                                         A.Id,
@@ -161,11 +156,10 @@ namespace LibraryNET.Implementation.AdminManagers
 		                                C.BookTitle,
 		                                C.BookAuthor,
 		                                C.BookImage
-		                                FROM {0} as A 
+		                                FROM Buys as A 
 		                                LEFT JOIN BuyDetail as B on A.Id = B.BuyId
 		                                LEFT JOIN Books as C on C.Id = B.ProductId 
-                                        WHERE A.IdUser = {1}",
-                                        TableName,
+                                        WHERE A.IdUser = {0}",
                                         idUser);
 
             // Crear conexion y ejecutar la query
@@ -173,7 +167,7 @@ namespace LibraryNET.Implementation.AdminManagers
             DataTable data = dbc.GetDataTable(query);
 
             // Crear lista de registros
-            List<Buy> buyDetailList = new List<Buy>();
+            List<Borrows> buyDetailList = new List<Borrows>();
 
             // Rellenar lista con registros
             if ((data != null) && (data.Rows.Count > 0))
@@ -192,69 +186,64 @@ namespace LibraryNET.Implementation.AdminManagers
         #region Protected Methods
 
         // Convierte el DT en un objeto Clase BuyDetail
-        protected BuyDetail ConvertDtRowToDTO(DataRow data)
+        protected BorrowDetail ConvertDtRowToDTO(DataRow data)
         {
-            BuyDetail buyDetail = new BuyDetail
+            BorrowDetail buyDetail = new BorrowDetail
             {
-                BuyProductId = (int)data["IdProduct"],
-                BuyBookQ = (int)data["QProducto"],
-                BookPrice = (int)data["Total"],
-                BuyTotal = (int)data["Total"] * (int)data["QProducto"]
+                BorrowProductId = (int)data["IdProduct"],
+                BorrowBookQ = (int)data["QProducto"],
+                BorrowDate = DateTime.Parse(data["BuyDate"].ToString()),
+                BorrowReturnDate = DateTime.Parse(data["BuyDate"].ToString())
             };
 
             return buyDetail;
         }
 
         // Convierte el DT en un objeto Clase Buy
-        protected Buy ConvertDtRowToDTOGet(DataRow data)
+        protected Borrows ConvertDtRowToDTOGet(DataRow data)
         {
-            Buy buyDetail = new Buy
+            Borrows borrowDetail = new Borrows
             {
                 Id = (int)data["Id"],
                 IdTransaction = data["IdTransaction"].ToString(),
-                TotalBruto = (int)data["BuySubtotal"],
-                IVA = (int)data["BuyIVA"],
-                TotalAmount = (int)data["BuyTotalAmount"],
-                BuyDate = DateTime.Parse(data["BuyDate"].ToString()),
-                    buyDetail = new BuyDetail()
-                    {
-                        Id = (int)data["BDetId"],
-                        BuyId = (int)data["BuyId"],
-                        BuyProductId = (int)data["ProductId"],
-                        BuyBookQ = (int)data["QProduct"],
-                        BookPrice = (int)data["ProductAmount"]
-                    },
-                    books = new Books()
-                    {
-                        Title = data["BookTitle"].ToString(),
-                        Author = data["BookAuthor"].ToString(),
-                        BookImage = Convert.FromBase64String(data["BookImage"].ToString())
-                    }
+                BorrowRegisterDate = DateTime.Parse(data["BuyDate"].ToString()),
+                borrowDetail = new BorrowDetail()
+                {
+                    Id = (int)data["BDetId"],
+                    BorrowId = (int)data["BuyId"],
+                    BorrowProductId = (int)data["ProductId"],
+                    BorrowBookQ = (int)data["QProduct"],
+                },
+                books = new Books()
+                {
+                    Title = data["BookTitle"].ToString(),
+                    Author = data["BookAuthor"].ToString(),
+                    BookImage = Convert.FromBase64String(data["BookImage"].ToString())
+                }
             };
 
-            return buyDetail;
+            return borrowDetail;
         }
 
         // Metodo para agregar un registro en BuyDetail
-        protected int InsertBuyDetail(BuyDetail buyDetail)
+        protected int InsertBorrowDetail(BorrowDetail borrowDetail)
         {
             int result = 0;
 
             try
             {
                 // Definir la query
-                string query = string.Format("INSERT INTO BuyDetail ({0}) {1}",
-                                "BuyId, ProductId, QProduct, ProductAmount",
-                                "VALUES(@BuyId, @ProductId, @QProduct, @ProductAmount)");
+                string query = string.Format("INSERT INTO BorrowDetail ({0}) {1}",
+                                "BorrowId, ProductId, QProduct, BorrowDate, BorrowReturnDate",
+                                "VALUES(@BorrowId, @ProductId, @QProduct, @BorrowDate, @BorrowReturnDate)");
 
                 // Definir los paramatros de enviar
-
                 List<SqlParameter> colParameters = new List<SqlParameter>();
-                colParameters.Add(new SqlParameter("BuyId", buyDetail.BuyId));
-                colParameters.Add(new SqlParameter("ProductId", buyDetail.BuyProductId));
-                colParameters.Add(new SqlParameter("QProduct", buyDetail.BuyBookQ));
-                colParameters.Add(new SqlParameter("ProductAmount", buyDetail.BookPrice));
-
+                colParameters.Add(new SqlParameter("BorrowId", borrowDetail.BorrowId));
+                colParameters.Add(new SqlParameter("ProductId", borrowDetail.BorrowProductId));
+                colParameters.Add(new SqlParameter("QProduct", borrowDetail.BorrowBookQ));
+                colParameters.Add(new SqlParameter("BorrowDate", DateTime.Parse(borrowDetail.BorrowDate.ToString("yyyy-mm-dd"))));
+                colParameters.Add(new SqlParameter("BorrowReturnDate", DateTime.Parse(borrowDetail.BorrowReturnDate.ToString("yyyy-mm-dd"))));
 
                 //Ejecutar el comando y obtener el resultado
                 dbc = new DbConnectionProvider();
@@ -270,14 +259,14 @@ namespace LibraryNET.Implementation.AdminManagers
             return result;
         }
 
-        // Metodo para eliminar el carrito del usuario
-        protected int delCart(int idUser)
+        // Metodo para eliminar el carrito de prestamos del usuario
+        protected int delBorrowCart(int idUser)
         {
             int result = 0;
             try
             {
                 //Definir el comando
-                string command = string.Format("DELETE FROM Cart WHERE IdUser = {0}",
+                string command = string.Format("DELETE FROM BorrowCart WHERE IdUser = {0}",
                                                "@IdUser");
 
                 //Definir los parámetros
@@ -297,7 +286,7 @@ namespace LibraryNET.Implementation.AdminManagers
             return result;
         }
 
-        // Metodo para actualizar el stock del libro comprado
+        // Metodo para actualizar el stock del libro prestado
         protected int updateBookStock(int bookQ, int bookId)
         {
             int result = 0;

@@ -44,7 +44,15 @@ namespace LibraryNET.Controllers
                 Session["UserDir"] = userLogin.UserDir;
                 Session["LoginTime"] = DateTime.Now;
             }
-            return RedirectToAction("Index", "Home");
+
+            if (Convert.ToInt32(Session["UserId"]) == 1)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return RedirectToAction("BooksList", "Books");
+            }
         }
 
         // Método para cerrar sesión

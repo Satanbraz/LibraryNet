@@ -1,0 +1,117 @@
+﻿@*@model IEnumerable<DTO.Borrows>
+
+@{
+    ViewBag.Title = "Prestamos";
+}
+
+<style>
+    .card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+        transition: max-height 0.3s ease-out;
+        overflow: hidden;
+    }
+
+    .card-header {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .card-content {
+        display: none;
+        margin-top: 10px;
+    }
+
+    .card-details {
+        margin-top: 10px;
+        margin-right: 10px;
+        text-align: right;
+    }
+
+        .card-details p {
+            margin: 5px 0;
+        }
+
+    .label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .card img {
+        width: 50%;
+    }
+</style>
+
+<h2>Mis Préstamos</h2>
+<hr />
+@foreach (var buy in Model.GroupBy(b => b.IdTransaction))
+{
+    <div class="card">
+        <div class="btn btn-outline-primary" style="text-align:right" onclick="detailCard(this)">
+            <div class="row">
+                <div class="col-md-6" style="text-align:start">
+                    Fecha de Compra: @buy.First().BuyDate
+                </div>
+                <div class="col-md-6" style="text-align:end">
+                    ID de Pedido: @buy.Key
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-content">
+            @foreach (var item in buy)
+            {
+                <div class="row">
+                    <div class="col-md-2">
+                        <div>
+                            <img class="card-img" src="data:image/jpeg;base64,@Convert.ToBase64String(item.books.BookImage)">
+                        </div>
+                    </div>
+                    <div class="col-md-10" style="padding:1%">
+                        <div class="row">
+                            <h5>@item.books.Title</h5>
+                        </div>
+                        <div class="row">
+                            <h7>@item.books.Author</h7>
+                        </div>
+                        <div class="row" style="text-align:end">
+                            <h8>x @item.buyDetail.BuyBookQ</h8>
+                        </div>
+                        <div class="row" style="text-align:end">
+                            <h8>$@item.buyDetail.BookPrice.ToString("N0")</h8>
+                        </div>
+                        <hr />
+                    </div>
+                </div>
+                <br>
+            }
+        </div>
+
+
+        <div class="card-details">
+            <p><span class="label">Subtotal:</span> $@buy.First().TotalBruto.ToString("N0")</p>
+            <p><span class="label">IVA (19%):</span> $@buy.First().IVA.ToString("N0")</p>
+            <p><span class="label">Total:</span> $@buy.First().TotalAmount.ToString("N0")</p>
+        </div>
+    </div>
+}
+
+<script>
+    function detailCard(header) {
+        const card = header.parentElement;
+        const content = card.querySelector('.card-content');
+        const isExpanded = content.style.display === 'block';
+
+        if (isExpanded) {
+            content.style.display = 'none';
+        } else {
+            content.style.display = 'block';
+        }
+    }
+</script>*@
+
