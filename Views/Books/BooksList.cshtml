@@ -76,10 +76,23 @@
         color: red;
         font-size: 12px;
         margin-top: 5px; /* Espacio entre el campo y el mensaje de error */
+        margin-left: 5px;
     }
 
+    .swal2-overflow {
+        overflow-x: visible;
+        overflow-y: visible;
+    }
+
+    .input-borrowReturnDate {
+        cursor: pointer;
+        margin-left: 17%;
+        margin-top: 5%;
+        margin-bottom: 5%;
+    }
 </style>
 
+<!-- Modal Agregar Libro-->
 <div id="modalAgregarLibro" class="modal fade modal-vertical-centered" tabindex="-1" aria-labelledby="modalAgregarLibroLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -131,6 +144,46 @@
     </div>
 </div>
 
+<!-- Modal Generar Prestamo-->
+<div id="modalGenerarSolicitarPrestamo" class="modal fade modal-vertical-centered" tabindex="-1" aria-labelledby="modalGenerarSolicitarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @if (Convert.ToInt32(Session["UserId"]) == 1)
+                {
+                    <h5 class="modal-title" id="modalGenerarPrestamoLabel">Generar Prestamo</h5>
+                }
+                else
+                {
+                    <h5 class="modal-title" id="modalGenerarPrestamoLabel">Solicitar Prestamo</h5>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario de generar/solicitar Prestamo -->
+                <form id="formGenerarPrestamo">
+                    <div class="mb-3">
+                        @if (Convert.ToInt32(Session["UserId"]) == 1)
+                        {
+                            <label for="borrowDate" class="form-label">Ingrese fecha solicitada por usuario</label>
+                        }
+                        else
+                        {
+                            <label for="borrowDate" class="form-label">Ingrese fecha de préstamo</label>
+                        }
+                        <input type="datetime" class="form-control" id="borrowDate" name="borrowDate" required>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="ValidateInputBorrowDate()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container">
 
     <div class="panel panel-group">
@@ -148,17 +201,18 @@
                     </div>
                 </div>
             </div>
-            @if (Convert.ToInt32(Session["UserId"]) == 1) {
-            <div class="col-md-10 text-end">
-                <button onclick="agregarLibros()" class="btn btn-primary">Agregar Libro</button>
-            </div>
+            @if (Convert.ToInt32(Session["UserId"]) == 1)
+            {
+                <div class="col-md-10 text-end">
+                    <button onclick="agregarLibros()" class="btn btn-primary">Agregar Libro</button>
+                </div>
             }
         </div>
 
         <hr style="width:12%" />
 
+        <!-- Columna para el formulario de filtro por género -->
         <div class="row" id="grupoFiltrar" style="display:none">
-            <!-- Columna para el formulario de filtro por género -->
             <div class="col-md-12">
                 <div class="row">
                     <div class="col-md-8">
@@ -179,7 +233,15 @@
 
                     <!-- Columna para el botón de filtrar -->
                     <div class="col-md-1" style="text-align:end">
-                        <button type="submit" name="submitButton" onclick="filtarLibros()" title="Filtrar" class="btn btn-primary">Filtrar</button>
+                        <button type="submit" name="submitButton" onclick="filtarLibros()" title="Filtrar" class="btn btn-primary">
+                            <svg width="21px" height="21px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <g id="Stockholm-icons-/-Shopping-/-Sort1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <rect id="bound" x="0" y="0" width="24" height="24"></rect>
+                                    <rect id="Rectangle-8" fill="#ffffff" x="4" y="5" width="16" height="3" rx="1.5"></rect>
+                                    <path d="M7.5,11 L16.5,11 C17.3284271,11 18,11.6715729 18,12.5 C18,13.3284271 17.3284271,14 16.5,14 L7.5,14 C6.67157288,14 6,13.3284271 6,12.5 C6,11.6715729 6.67157288,11 7.5,11 Z M10.5,17 L13.5,17 C14.3284271,17 15,17.6715729 15,18.5 C15,19.3284271 14.3284271,20 13.5,20 L10.5,20 C9.67157288,20 9,19.3284271 9,18.5 C9,17.6715729 9.67157288,17 10.5,17 Z" id="Combined-Shape" fill="#ffffff" opacity="0.7"></path>
+                                </g>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -188,8 +250,8 @@
             <hr />
         </div>
 
+        <!-- Columna para el formulario de busqueda -->
         <div class="row" id="grupoBuscar" style="display:none">
-            <!-- Columna para el formulario de busqueda -->
             <div class="col-md-12">
                 <div class="row">
                     <div class="col-md-8">
@@ -210,22 +272,22 @@
                     <div class="col-md-1" style="text-align:end">
                         <button type="submit" name="submitButton" onclick="buscarLibros()" title="Buscar" class="btn btn-primary">
                             <svg width="21px" height="21px" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve">
-                                <style type="text/css">
-                                    .st0 {
-                                        fill: none;
-                                        stroke: #ffffff;
-                                        stroke-width: 2;
-                                        stroke-linecap: round;
-                                        stroke-linejoin: round;
-                                        stroke-miterlimit: 10;
-                                    }
-                                </style>
-                                <path class="st0" d="M26,3H9C7.3,3,6,4.3,6,6v0c0,1.7,1.3,3,3,3h17v10" />
-                                <path class="st0" d="M18,29H9c-1.7,0-3-1.3-3-3v0V6" />
-                                <line class="st0" x1="26" y1="6" x2="9" y2="6" />
-                                <line class="st0" x1="10" y1="9" x2="10" y2="29" />
-                                <path class="st0" d="M25.5,18.5c1.9,1.9,1.9,5.1,0,7c-0.5,0.5-1,0.8-1.6,1.1c-1.8,0.7-3.9,0.4-5.4-1.1c-1.9-1.9-1.9-5.1,0-7 S23.6,16.6,25.5,18.5z" />
-                                <path class="st0" d="M26.5,24l3.9,3.6c0.8,0.8,0.8,2,0,2.8l0,0c-0.8,0.8-2,0.8-2.8,0l-3.5-3.5" />
+                            <style type="text/css">
+                                .st0 {
+                                    fill: none;
+                                    stroke: #ffffff;
+                                    stroke-width: 2;
+                                    stroke-linecap: round;
+                                    stroke-linejoin: round;
+                                    stroke-miterlimit: 10;
+                                }
+</style>
+                            <path class="st0" d="M26,3H9C7.3,3,6,4.3,6,6v0c0,1.7,1.3,3,3,3h17v10" />
+                            <path class="st0" d="M18,29H9c-1.7,0-3-1.3-3-3v0V6" />
+                            <line class="st0" x1="26" y1="6" x2="9" y2="6" />
+                            <line class="st0" x1="10" y1="9" x2="10" y2="29" />
+                            <path class="st0" d="M25.5,18.5c1.9,1.9,1.9,5.1,0,7c-0.5,0.5-1,0.8-1.6,1.1c-1.8,0.7-3.9,0.4-5.4-1.1c-1.9-1.9-1.9-5.1,0-7 S23.6,16.6,25.5,18.5z" />
+                            <path class="st0" d="M26.5,24l3.9,3.6c0.8,0.8,0.8,2,0,2.8l0,0c-0.8,0.8-2,0.8-2.8,0l-3.5-3.5" />
                             </svg>
                         </button>
                     </div>
@@ -264,7 +326,8 @@
                                         <img class="card-img" src="data:image/jpeg;base64,@Convert.ToBase64String(book.BookImage)" title="@book.Title" />
 
                                         <!-- Opción para cambiar o cargar la imagen -->
-                                        @if (Convert.ToInt32(Session["UserId"]) == 1) {
+                                        @if (Convert.ToInt32(Session["UserId"]) == 1)
+                                        {
                                             <div class="card-details">
                                                 <input type="file" class="file-input" style="display: none;" accept="image/*">
                                                 <button class="btn btn-sm btn-light upload-btn" data-book-id="@book.Id">
@@ -289,13 +352,13 @@
                                             <div class="col-md-3">
                                                 @if (Convert.ToInt32(Session["UserId"]) == 2)
                                                 {
-                                                    <a class="btn btn-sm btn-success btn-icon mr-2" title="Solicitar préstamo">
+                                                    <a class="btn btn-sm btn-success btn-icon mr-2" title="Solicitar préstamo" onclick="ShowRequestBorrow()">
                                                         <svg fill="#ffffff" height="24px" width="24px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                                              viewBox="0 0 509.117 509.117" xml:space="preserve">
-                                                            <g transform="translate(1 1)">
-                                                                <g>
-                                                                    <g>
-                                                                        <path d="M500.965,256.162c-13.017-16.488-39.919-11.281-54.671-1.736l-75.498,50.332H255.378
+                                                        <g transform="translate(1 1)">
+                                                        <g>
+                                                        <g>
+                                                        <path d="M500.965,256.162c-13.017-16.488-39.919-11.281-54.671-1.736l-75.498,50.332H255.378
                                                                             c-1.736-1.736-2.603-5.207-2.603-7.81c0-3.471,1.736-7.81,4.339-10.414l51.2-17.356c15.62-6.942,28.637-28.637,21.695-45.993
                                                                             c-2.603-6.075-7.81-11.281-14.753-13.885c-9.546-3.471-21.695-3.471-31.241,0.868l-77.234,26.034l-93.722,8.678
                                                                             c-6.942,0-18.224,6.942-22.563,9.546l-59.878,25.166c-26.902,12.149-39.051,43.39-26.902,70.292l39.919,97.193
@@ -310,12 +373,12 @@
                                                                             c-7.81,6.075-12.149,15.62-12.149,26.034c0.868,9.546,5.207,17.356,13.017,22.563c0.868,0.868,2.603,1.736,4.339,1.736h121.492
                                                                             c1.736,0,3.471-0.868,3.471-1.736l78.102-52.068c9.546-6.075,26.902-8.678,32.108-1.736
                                                                             C490.551,270.914,491.419,276.121,490.551,281.328z" />
-                                                                        <path d="M60.992,175.457h52.068h34.712h225.627h34.712h52.068c5.207,0,8.678-3.471,8.678-8.678V62.643
+                                                        <path d="M60.992,175.457h52.068h34.712h225.627h34.712h52.068c5.207,0,8.678-3.471,8.678-8.678V62.643
                                                                             c0-5.207-3.471-8.678-8.678-8.678H408.11h-34.712H147.772H113.06H60.992c-5.207,0-8.678,3.471-8.678,8.678v104.136
                                                                             C52.314,171.985,55.785,175.457,60.992,175.457z M156.449,158.101v-86.78h208.271v86.78H156.449z M451.5,158.101h-34.712v-86.78
                                                                             H451.5V158.101z M399.433,71.321v86.78h-17.356v-86.78H399.433z M139.094,71.321v86.78h-17.356v-86.78H139.094z M69.67,71.321
                                                                             h34.712v86.78H69.67V71.321z" />
-                                                                        <path d="M321.331,106.033H199.839c-5.207,0-8.678,3.471-8.678,8.678s3.471,8.678,8.678,8.678h121.492
+                                                        <path d="M321.331,106.033H199.839c-5.207,0-8.678,3.471-8.678,8.678s3.471,8.678,8.678,8.678h121.492
                                                                             c5.207,0,8.678-3.471,8.678-8.678S326.538,106.033,321.331,106.033z" />
                                                                 </g>
                                                             </g>
@@ -340,10 +403,10 @@
                                                     <a class="btn btn-sm btn-success btn-icon mr-2" title="Generar préstamo">
                                                         <svg fill="#ffffff" height="24px" width="24px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                                              viewBox="0 0 509.117 509.117" xml:space="preserve">
-                                                            <g transform="translate(1 1)">
-                                                                <g>
-                                                                    <g>
-                                                                        <path d="M500.965,256.162c-13.017-16.488-39.919-11.281-54.671-1.736l-75.498,50.332H255.378
+                                                        <g transform="translate(1 1)">
+                                                        <g>
+                                                        <g>
+                                                        <path d="M500.965,256.162c-13.017-16.488-39.919-11.281-54.671-1.736l-75.498,50.332H255.378
                                                                             c-1.736-1.736-2.603-5.207-2.603-7.81c0-3.471,1.736-7.81,4.339-10.414l51.2-17.356c15.62-6.942,28.637-28.637,21.695-45.993
                                                                             c-2.603-6.075-7.81-11.281-14.753-13.885c-9.546-3.471-21.695-3.471-31.241,0.868l-77.234,26.034l-93.722,8.678
                                                                             c-6.942,0-18.224,6.942-22.563,9.546l-59.878,25.166c-26.902,12.149-39.051,43.39-26.902,70.292l39.919,97.193
@@ -358,12 +421,12 @@
                                                                             c-7.81,6.075-12.149,15.62-12.149,26.034c0.868,9.546,5.207,17.356,13.017,22.563c0.868,0.868,2.603,1.736,4.339,1.736h121.492
                                                                             c1.736,0,3.471-0.868,3.471-1.736l78.102-52.068c9.546-6.075,26.902-8.678,32.108-1.736
                                                                             C490.551,270.914,491.419,276.121,490.551,281.328z" />
-                                                                        <path d="M60.992,175.457h52.068h34.712h225.627h34.712h52.068c5.207,0,8.678-3.471,8.678-8.678V62.643
+                                                        <path d="M60.992,175.457h52.068h34.712h225.627h34.712h52.068c5.207,0,8.678-3.471,8.678-8.678V62.643
                                                                             c0-5.207-3.471-8.678-8.678-8.678H408.11h-34.712H147.772H113.06H60.992c-5.207,0-8.678,3.471-8.678,8.678v104.136
                                                                             C52.314,171.985,55.785,175.457,60.992,175.457z M156.449,158.101v-86.78h208.271v86.78H156.449z M451.5,158.101h-34.712v-86.78
                                                                             H451.5V158.101z M399.433,71.321v86.78h-17.356v-86.78H399.433z M139.094,71.321v86.78h-17.356v-86.78H139.094z M69.67,71.321
                                                                             h34.712v86.78H69.67V71.321z" />
-                                                                        <path d="M321.331,106.033H199.839c-5.207,0-8.678,3.471-8.678,8.678s3.471,8.678,8.678,8.678h121.492
+                                                        <path d="M321.331,106.033H199.839c-5.207,0-8.678,3.471-8.678,8.678s3.471,8.678,8.678,8.678h121.492
                                                                             c5.207,0,8.678-3.471,8.678-8.678S326.538,106.033,321.331,106.033z" />
                                                                     </g>
                                                                 </g>
@@ -396,11 +459,29 @@
     </div>
 </div>
 
-
-
 <script>
     $(document).ready(function () {
         $('#modalAgregarLibro').modal('hide');
+        $('#modalGenererPrestamo').modal('hide');
+
+        // Calendario para el campo borrowDate
+        flatpickr("#borrowDate",{
+            minDate: 'today', // Establecer fecha máxima permitida, día anterior al de hoy
+            dateFormat: 'd-m-Y', // Formato de fecha
+            locale: {
+                firstDayOfWeek: 1// Establecer el primer día de la semana en lunes (0 para domingo, 1 para lunes, etc.)
+            },
+            disable: [
+                function (date) {
+                    // Deshabilitar sabados y domingos
+                    return (date.getDay() === 0 || date.getDay() === 6);
+
+                }
+            ],
+            "locale":"es"
+        });
+
+        
 
         // Cargar los géneros al cargar la página para filtrar
         $.ajax({
@@ -627,24 +708,6 @@
         });
     }
 
-    //Funcion para mostrar los mensajes de error
-    function mostrarMensajeError(elemento, mensaje) {
-        var mensajeError = elemento.nextElementSibling;
-        if (!mensajeError || !mensajeError.classList.contains('mensaje-error')) {
-            mensajeError = document.createElement('div');
-            mensajeError.classList.add('mensaje-error');
-            elemento.parentNode.insertBefore(mensajeError, elemento.nextSibling);
-        }
-        mensajeError.textContent = mensaje;
-    }
-
-    //Funcion para ocultar los mensajes de error
-    function ocultarMensajeError(elemento) {
-        var mensajeError = elemento.nextElementSibling;
-        if (mensajeError && mensajeError.classList.contains('mensaje-error')) {
-            mensajeError.parentNode.removeChild(mensajeError);
-        }
-    }
 
     // Funcion para agregar libros al carrito de ventas
     function addToCartSell() {
@@ -699,4 +762,128 @@
 
         
     }
+
+    // Funcion para solicitar un prestamo
+    function ShowRequestBorrow() {
+        // Mostrar la ventana emergente para Generer Prestamo
+        $('#modalGenerarSolicitarPrestamo').modal('show');
+    }
+
+    function ValidateInputBorrowDate() {
+        if (document.getElementById('borrowDate').value == "") {
+            mostrarMensajeError(borrowDate,'Debe de ingresar la Fecha de Préstamo');
+        }
+        else {
+            $('#modalGenerarSolicitarPrestamo').modal('hide');
+            ocultarMensajeError(borrowDate);
+
+            Swal.fire({
+                icon: 'question',
+                iconColor: 'red',
+                title: '¿Quieres ingresar Fecha de Devolución?',
+                text: 'Si no ingresas, la fecha se generará automaticamente',
+                showConfirmButton: true,
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                cancelButtonColor: 'red',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var fechaPrestamo = $('#borrowDate').val();
+                    var fechaPrestamoSplit = fechaPrestamo.split('-')
+                    var fechaPrestamoDate = new Date(fechaPrestamoSplit[2], fechaPrestamoSplit[1] - 1, fechaPrestamoSplit[0]);
+
+                    var maxDate = addBusinessDays(fechaPrestamoDate, 6);
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Ingresa Fecha de Devolución',
+                        html: '<label>Si no ingresas, la fecha se generará automaticamente</label>' +
+                            '<br />' +
+                            '<input type="datetime" class="form-control input-borrowReturnDate" id="borrowReturnDate" name="borrowReturnDate" required>',
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        cancelButtonText: 'Cancelar',
+                        cancelButtonColor: 'red',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        preConfirm: () => {
+                            var borrowReturnDate = document.getElementById('borrowReturnDate').value;
+                            if (!borrowReturnDate) {
+                                Swal.showValidationMessage('Por favor, ingresa una fecha de devolución');
+                                return false;
+                            }
+                            return borrowReturnDate;
+                        },
+                        willOpen: (function () {
+                            flatpickr("#borrowReturnDate", {
+                                minDate: fechaPrestamoDate, // Establecer fecha minima permitida, día de solicitudde prestamo
+                                maxDate: maxDate, // Establecer fecha maxima permitida, 7 dias habiles contando el día de solicitudde prestamo
+                                dateFormat: 'd-m-Y', // Formato de fecha
+                                locale: {
+                                    firstDayOfWeek: 1// Establecer el primer día de la semana en lunes (0 para domingo, 1 para lunes, etc.)
+                                },
+                                disable: [
+                                    function (date) {
+                                        // Deshabilitar sabados y domingos
+                                        return (date.getDay() === 0 || date.getDay() === 6);
+                                    }
+                                ],
+                                "locale": "es"
+                            });
+                        })
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var fechaDevolucion = $('#borrowReturnDate').val();
+                            console.log(fechaDevolucion)
+                        } else {
+                            $.ajax({
+
+                            });
+
+                            $('#borrowDate').val("")
+                        }
+                    })
+                } else {
+                    $('#borrowDate').val("")
+                }
+            });
+        }
+    }
+
+    // Funcion para agregar dias habiles despues de la fecha de prestamo
+    function addBusinessDays(startDate, days) {
+        var currentDate = new Date(startDate);
+        var addedDays = 0;
+        while (addedDays < days) {
+            currentDate.setDate(currentDate.getDate() + 1);
+            // Omitir Fines de Semana
+            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                addedDays++;
+            }
+        }
+        return currentDate;
+    }
+
+    //Funcion para mostrar los mensajes de error
+    function mostrarMensajeError(elemento, mensaje) {
+        var mensajeError = elemento.nextElementSibling;
+        if (!mensajeError || !mensajeError.classList.contains('mensaje-error')) {
+            mensajeError = document.createElement('div');
+            mensajeError.classList.add('mensaje-error');
+            elemento.parentNode.insertBefore(mensajeError, elemento.nextSibling);
+        }
+        mensajeError.textContent = mensaje;
+    }
+
+    //Funcion para ocultar los mensajes de error
+    function ocultarMensajeError(elemento) {
+        var mensajeError = elemento.nextElementSibling;
+        if (mensajeError && mensajeError.classList.contains('mensaje-error')) {
+            mensajeError.parentNode.removeChild(mensajeError);
+        }
+    }
+
+
 </script>

@@ -10,32 +10,35 @@ using System.Web.Mvc;
 
 namespace LibraryNET.Controllers
 {
-
-    [Session]
-    public class BuySellController : Controller
+    public class BorrowController : Controller
     {
         #region Propierties
 
+        BorrowManager _borrowManager = new BorrowManager();
         GUID _guidManager = new GUID();
-        BuySellManager _buySellManager = new BuySellManager();
 
         #endregion
 
 
+        // GET: Borrow
+        public ActionResult Index()
+        {
+            return View();
+        }
 
-        // GET: BuySell/Details/5
+        // GET: Borrow/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: BuySell/Create
+        // GET: Borrow/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: BuySell/Create
+        // POST: Borrow/Create
         [HttpPost]
         public ActionResult Create(FormCollection collection)
         {
@@ -51,13 +54,13 @@ namespace LibraryNET.Controllers
             }
         }
 
-        // GET: BuySell/Edit/5
+        // GET: Borrow/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: BuySell/Edit/5
+        // POST: Borrow/Edit/5
         [HttpPost]
         public ActionResult Edit(int id, FormCollection collection)
         {
@@ -73,13 +76,13 @@ namespace LibraryNET.Controllers
             }
         }
 
-        // GET: BuySell/Delete/5
+        // GET: Borrow/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: BuySell/Delete/5
+        // POST: Borrow/Delete/5
         [HttpPost]
         public ActionResult Delete(int id, FormCollection collection)
         {
@@ -95,41 +98,39 @@ namespace LibraryNET.Controllers
             }
         }
 
-        #region SellMethods
-
-        #endregion
-
-        #region BuyMethods
-        public string ProcessPayment(Buy buyModel, List<BuyDetail> buyDetailModel)
+        // GET: BorrowList
+        public ActionResult BorrowList()
         {
-            int buySubtotal = 0;
-            DataTable buyDetail = new DataTable();
-            buyDetail.Columns.Add("IdProduct",typeof(int));
-            buyDetail.Columns.Add("QProducto", typeof(int));
-            buyDetail.Columns.Add("Total", typeof(int));
+            var oListBorrows = _borrowManager.GetBorrows(Convert.ToInt32(Session["UserId"]));
 
-            foreach (var item in buyDetailModel)
+            ViewBag.BorrowList = oListBorrows;
+
+            return View(oListBorrows);
+        }
+
+        public string ProcessBorrow(Borrows borrowModel, List<BorrowDetail> borrowDetailModel)
+        {
+            DataTable borrowDetail = new DataTable();
+            borrowDetail.Columns.Add("IdProduct", typeof(int));
+            borrowDetail.Columns.Add("QProducto", typeof(int));
+            borrowDetail.Columns.Add("BorrowDate", typeof(DateTime));
+            borrowDetail.Columns.Add("BorrowReturnDate", typeof(DateTime));
+
+            foreach (var item in borrowDetailModel)
             {
-                int subtotal = item.BookPrice * item.BuyBookQ;
-
-                buySubtotal += subtotal;
-
-                buyDetail.Rows.Add(new Object[]
+                borrowDetail.Rows.Add(new Object[]
                 {
-                    item.BuyProductId,
-                    item.BuyBookQ,
-                    subtotal
+                    item.BorrowProductId,
+                    item.BorrowBookQ,
+                    item.BorrowDate,
+                    item.BorrowReturnDate
                 });
             }
 
-            buyModel.TotalBruto = buySubtotal;
-            buyModel.IVA = (int)(buySubtotal * 0.19);
-            buyModel.TotalAmount = buyModel.TotalBruto + buyModel.IVA;
-            buyModel.BuyDate = DateTime.Now;
-            buyModel.IdTransaction = "BID" + _guidManager.GenerateTransactionId();
-            buyModel.ProductsQ = buyDetailModel.Count();
+            borrowModel.IdTransaction = "BRID" +  _guidManager.GenerateTransactionId();
+            borrowModel.ProductsQ = borrowDetailModel.Count();
 
-            int result = _buySellManager.InsertBuy(buyModel, buyDetail);
+            int result = _borrowManager.InsertBorrowRequest(borrowModel, borrowDetail);
 
             if (result == 1)
             {
@@ -141,15 +142,5 @@ namespace LibraryNET.Controllers
             }
         }
 
-        // GET: BuyList
-        public ActionResult BuyList()
-        {
-            var oListBuys = _buySellManager.GetBuys(Convert.ToInt32(Session["UserId"]));
-
-            ViewBag.BuyList = oListBuys;
-
-            return View(oListBuys);
-        }
-        #endregion
     }
 }
